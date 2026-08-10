@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Companion Core Lite heartbeat</title>
+  <style>
+    :root { color-scheme: light dark; font: 15px/1.45 ui-sans-serif, system-ui, sans-serif; --ember: #f97352; --edge: color-mix(in srgb, CanvasText 16%, transparent); --soft: color-mix(in srgb, CanvasText 7%, transparent); }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; color: CanvasText; background: Canvas; }
+    main { max-width: 760px; margin: auto; }
+    header { display: flex; gap: 12px; align-items: center; }
+    .mark { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 14px; background: color-mix(in srgb, var(--ember) 18%, transparent); font-size: 22px; }
+    h1 { margin: 0; font-size: 1.2rem; }
+    header p { margin: 2px 0 0; opacity: .72; }
+    .notice { margin: 16px 0; padding: 12px 14px; border: 1px solid color-mix(in srgb, #e7a33e 45%, var(--edge)); border-radius: 12px; background: color-mix(in srgb, #e7a33e 10%, Canvas); }
+    fieldset { border: 0; padding: 0; margin: 0; }
+    legend { font-weight: 700; margin-bottom: 10px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    label.card { display: block; min-height: 122px; padding: 12px; border: 1px solid var(--edge); border-radius: 13px; cursor: pointer; background: var(--soft); }
+    label.card:has(input:checked) { border: 2px solid var(--ember); padding: 11px; background: color-mix(in srgb, var(--ember) 10%, Canvas); }
+    input[type=radio] { accent-color: var(--ember); }
+    .title { font-weight: 750; margin-left: 5px; }
+    .metric { display: block; margin: 9px 0 3px; font-size: 1.12rem; font-weight: 750; }
+    .desc { display: block; opacity: .72; font-size: .9rem; }
+    .custom { display: flex; align-items: center; gap: 8px; margin: 12px 0 0 28px; }
+    .custom[hidden] { display: none; }
+    input[type=number] { width: 92px; padding: 7px; border-radius: 8px; border: 1px solid var(--edge); background: Canvas; color: CanvasText; }
+    .status { margin-top: 16px; padding: 12px 14px; border-radius: 12px; background: var(--soft); }
+    .status strong { display: block; }
+    .sync-required { color: #ca6b00; }
+    .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+    button { border: 0; border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 700; cursor: pointer; }
+    button.primary { background: var(--ember); color: #20100c; }
+    button.secondary { background: var(--soft); color: CanvasText; border: 1px solid var(--edge); }
+    button:disabled { opacity: .5; cursor: wait; }
+    #message { min-height: 1.5em; margin-top: 10px; opacity: .78; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="mark" aria-hidden="true">🔥</div>
+    <div><h1>Discord heartbeat</h1><p>How often Work checks whether my companion has something to see.</p></div>
+  </header>
+
+  <div class="notice"><strong>Usage matters.</strong> Each scheduled heartbeat may consume ChatGPT Work usage, even when Discord is quiet. Always-on presets show a hard maximum per day. Social Session concentrates the same 48-run ceiling into four responsive hours, then stops.</div>
+
+  <fieldset>
+    <legend>Choose a presence rhythm</legend>
+    <div id="presets" class="grid"></div>
+    <div id="custom-row" class="custom" hidden>
+      <label for="custom-minutes">Every</label>
+      <input id="custom-minutes" type="number" min="1" max="1440" value="60">
+      <span>minutes · <strong id="custom-checks">24</strong> maximum checks/day</span>
+    </div>
+  </fieldset>
+
+  <section class="status" aria-live="polite">
+    <strong id="current">Loading current setting…</strong>
+    <span id="sync"></span>
+  </section>
+  <div class="actions">
+    <button id="save" class="primary" type="button">Save heartbeat</button>
+    <button id="apply" class="secondary" type="button" hidden>Ask Work to apply schedule</button>
+  </div>
+  <div id="message" role="status"></div>
+</main>
+<script>
+  const fallbackPresets = [
+    { id: "off", label: "Off", intervalMinutes: null, checksPerDay: 0, description: "No automatic Discord checks." },
+    { id: "frugal", label: "Frugal", intervalMinutes: 30, maximumScheduledChecks: 48, maximumScheduledChecksPeriod: "day", description: "A gentle always-on default for usage-sensitive plans." },
+    { id: "balanced", label: "Balanced", intervalMinutes: 10, maximumScheduledChecks: 144, maximumScheduledChecksPeriod: "day", description: "More present without checking constantly." },
+    { id: "present", label: "Present", intervalMinutes: 5, maximumScheduledChecks: 288, maximumScheduledChecksPeriod: "day", description: "Frequent always-on checks for active communities." },
+    { id: "social-session", label: "Social Session", intervalMinutes: 5, maximumScheduledChecks: 48, maximumScheduledChecksPeriod: "session", description: "Five-minute presence for four hours, then the task stops." },
+    { id: "very-present", label: "Very Present", intervalMinutes: 2, maximumScheduledChecks: 720, maximumScheduledChecksPeriod: "day", description: "High-frequency always-on presence for inference-rich accounts." },
+    { id: "custom", label: "Custom", intervalMinutes: null, maximumScheduledChecks: 0, maximumScheduledChecksPeriod: "day", description: "Choose an always-on interval from 1 to 1,440 minutes." }
+  ];
+  let state = window.openai?.toolOutput || { presets: fallbackPresets, heartbeat: { preset: "frugal", label: "Frugal", maximumScheduledChecks: 48, maximumScheduledChecksPeriod: "day", schedulerSyncRequired: true } };
+  let lastInstruction = state.scheduleInstruction || "";
+  const presetsEl = document.querySelector("#presets");
+  const customRow = document.querySelector("#custom-row");
+  const customInput = document.querySelector("#custom-minutes");
+  const customChecks = document.querySelector("#custom-checks");
+  const currentEl = document.querySelector("#current");
+  const syncEl = document.querySelector("#sync");
+  const messageEl = document.querySelector("#message");
+  const saveButton = document.querySelector("#save");
+  const applyButton = document.querySelector("#apply");
+
+  function checks(minutes) { return minutes ? Math.ceil(1440 / minutes) : 0; }
+  function metric(value) {
+    const maximum = value?.maximumScheduledChecks ?? value?.maximumChecksPerDay ?? value?.checksPerDay ?? 0;
+    const period = value?.maximumScheduledChecksPeriod === "session" ? "session" : "day";
+    return `${maximum} max/${period}`;
+  }
+  function selectedPreset() { return document.querySelector('input[name="preset"]:checked')?.value || "frugal"; }
+  function render() {
+    const presets = state.presets || fallbackPresets;
+    presetsEl.innerHTML = presets.map(p => `<label class="card"><input type="radio" name="preset" value="${p.id}" ${p.id === state.heartbeat?.preset ? "checked" : ""}><span class="title">${p.label}</span><span class="metric">${p.id === "custom" ? "You choose" : metric(p)}</span><span class="desc">${p.description}</span></label>`).join("");
+    customRow.hidden = selectedPreset() !== "custom";
+    currentEl.textContent = `Saved: ${state.heartbeat?.label || "Frugal"} · ${metric(state.heartbeat)}`;
+    const required = state.heartbeat?.schedulerSyncRequired !== false;
+    const transportBlocked = state.transportStatus !== "connected";
+    const deliveryBlocked = state.heartbeatDeliveryStatus !== "ready";
+    const blocked = transportBlocked || deliveryBlocked;
+    syncEl.textContent = transportBlocked ? "Saved as the desired cadence. Discord must be connected before scheduling." : deliveryBlocked ? "Discord is connected, but the running bridge must expose heartbeat polling before scheduling." : required ? "Work schedule update required after the manual delivery test." : "Work schedule confirmed.";
+    syncEl.className = required ? "sync-required" : "";
+    applyButton.hidden = !required || blocked;
+    document.querySelectorAll('input[name="preset"]').forEach(input => input.addEventListener("change", () => { customRow.hidden = selectedPreset() !== "custom"; }));
+  }
+  customInput.addEventListener("input", () => { customChecks.textContent = checks(Number(customInput.value)); });
+  saveButton.addEventListener("click", async () => {
+    const preset = selectedPreset();
+    const args = { preset };
+    if (preset === "custom") args.customMinutes = Number(customInput.value);
+    if (!window.openai?.callTool) { messageEl.textContent = "This preview needs to run inside a connected Codex or Work plugin to save."; return; }
+    saveButton.disabled = true;
+    messageEl.textContent = "Saving…";
+    try {
+      const response = await window.openai.callTool("set_heartbeat_settings", args);
+      state = response?.structuredContent || state;
+      lastInstruction = state.scheduleInstruction || lastInstruction;
+      render();
+      messageEl.textContent = state.transportStatus === "connected" && state.heartbeatDeliveryStatus === "ready" ? "Saved locally. Work still needs to apply the scheduled-task change." : "Saved locally. No Work heartbeat should start until automatic Discord batching is ready.";
+    } catch (error) { messageEl.textContent = error?.message || "Could not save heartbeat."; }
+    finally { saveButton.disabled = false; }
+  });
+  applyButton.addEventListener("click", async () => {
+    if (!window.openai?.sendFollowUpMessage) { messageEl.textContent = "Tell Work: apply my saved Companion Core Lite heartbeat schedule."; return; }
+    const prompt = lastInstruction || "Read my saved Companion Core Lite heartbeat setting, apply it to the scheduled task in this chat, and only then confirm the schedule through the plugin.";
+    await window.openai.sendFollowUpMessage({ prompt, scrollToBottom: true });
+  });
+  window.addEventListener("openai:set_globals", event => {
+    if (event.detail?.globals?.toolOutput) { state = event.detail.globals.toolOutput; render(); }
+  });
+  render();
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+name: Public beta checks
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: plugins/companion-core-lite/sdk/package-lock.json
+
+      - name: Install pinned SDK dependencies
+        run: npm ci --prefix plugins/companion-core-lite/sdk
+
+      - name: Audit runtime dependencies
+        run: npm audit --prefix plugins/companion-core-lite/sdk --audit-level=high
+
+      - name: Test event-driven SDK runtime
+        run: npm test --prefix plugins/companion-core-lite/sdk
+
+      - name: Test plugin, bridge, and policies
+        run: >-
+          node --test
+          plugins/companion-core-lite/mcp/test/activity-poll.test.mjs
+          plugins/companion-core-lite/mcp/test/discord-bridge.test.mjs
+          plugins/companion-core-lite/mcp/test/server.test.mjs
+          plugins/companion-core-lite/mcp/test/settings.test.mjs
+
+      - name: Audit the share tree
+        shell: pwsh
+        run: |
+          & .\scripts\Test-ShareTree.ps1
+
+      - name: Build public-beta archive
+        shell: pwsh
+        run: |
+          & .\scripts\package-beta.ps1
+          if (-not (Test-Path -LiteralPath '.\dist\companion-core-lite-beta.zip')) {
+            throw 'Public-beta archive was not created.'
+          }

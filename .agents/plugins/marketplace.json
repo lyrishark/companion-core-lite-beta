@@ -1,0 +1,20 @@
+{
+  "name": "companion-pilot",
+  "interface": {
+    "displayName": "Companion Pilot"
+  },
+  "plugins": [
+    {
+      "name": "companion-core-lite",
+      "source": {
+        "source": "local",
+        "path": "./plugins/companion-core-lite"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

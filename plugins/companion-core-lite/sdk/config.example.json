@@ -1,0 +1,22 @@
+{
+  "coalesceSeconds": 20,
+  "maximumBatchMessages": 30,
+  "budget": {
+    "timeZone": "America/New_York",
+    "maximumTurnsPerHour": 6,
+    "maximumTurnsPerDay": 24,
+    "reservedDirectPingTurnsPerDay": 6,
+    "minimumCooldownSeconds": 120,
+    "directPingCooldownSeconds": 30,
+    "quietHours": {
+      "start": "01:00",
+      "end": "08:00",
+      "allowDirectPings": true
+    }
+  },
+  "codex": {
+    "model": null,
+    "reasoningEffort": "low",
+    "webSearchMode": "disabled"
+  }
+}

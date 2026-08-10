@@ -1,0 +1,17 @@
+{
+  "name": "companion-core-lite-sdk-runtime",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/runtime.mjs",
+    "test": "node --test test/budget-governor.test.mjs test/codex-companion.test.mjs test/event-batcher.test.mjs test/gateway-client.test.mjs"
+  },
+  "dependencies": {
+    "@openai/codex-sdk": "0.147.0",
+    "ws": "8.21.3"
+  }
+}

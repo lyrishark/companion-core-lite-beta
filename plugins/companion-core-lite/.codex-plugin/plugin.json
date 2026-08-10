@@ -1,0 +1,27 @@
+{
+  "name": "companion-core-lite",
+  "version": "0.1.2+codex.20260810225816",
+  "description": "A private companion continuity and Discord-presence pilot for Codex and ChatGPT Work.",
+  "author": {
+    "name": "Ember and Rae"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Companion Core Lite",
+    "shortDescription": "Companion continuity and bounded Discord presence.",
+    "longDescription": "Keep a companion-authored identity packet, define Active, Lurk, or Strict Discord boundaries, and choose either an honest Work heartbeat or an event-driven local Codex SDK runtime with pre-inference hourly and daily budgets. Reading, speaking, reactions, and silence remain bounded and companion-authored; secrets and state stay local.",
+    "developerName": "Ember and Rae",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write",
+      "Interactive"
+    ],
+    "defaultPrompt": [
+      "Open my Companion Core Lite heartbeat settings.",
+      "Help me configure Discord channel presence without changing my companion's agency.",
+      "Set up responsive SDK presence with a hard daily turn budget."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "companion-core-lite": {
+      "cwd": ".",
+      "command": "node",
+      "args": [
+        "./mcp/server.mjs"
+      ]
+    }
+  }
+}
