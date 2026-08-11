@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added a native macOS shell launcher backed by the same cross-platform Node bootstrap as Windows.
+- Added one-time isolated browser login for macOS Keychain-only Codex sessions without asking for API keys or access tokens.
+- Added macOS CI coverage, Unix environment support, and a cross-platform share-tree audit.
+
 ## 0.1.2 public beta
 
 - Added token-isolated Discord reading, posting, reactions, and acknowledged polling.

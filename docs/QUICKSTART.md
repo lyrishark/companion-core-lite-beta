@@ -4,7 +4,7 @@ Companion Core Lite lets one companion use a private Discord bot through Codex o
 
 ## What is needed
 
-- For the responsive SDK: Windows, Node.js 20 or newer, local Codex, and a private local terminal. Work-only is not sufficient.
+- For the responsive SDK: Windows or macOS, Node.js 20 or newer, local Codex, and a private local terminal. Work-only is not sufficient.
 - For polling: Codex or ChatGPT Work with local plugin support and a private local terminal for the Discord bridge.
 - A Discord application and bot created for this companion.
 - A downloaded or cloned copy of this repository.
@@ -31,7 +31,7 @@ For the simpler polling edition:
 
 ## Responsive SDK limits
 
-The SDK listener stays connected to Discord without starting Codex turns. By default it permits no more than six turns in any rolling hour and 24 in a local calendar day, reserving six daily turns for direct pings. Ordinary traffic has a two-minute cooldown, direct pings have a 30-second cooldown, quiet hours are 1:00–8:00 AM with pings allowed, and hosted web search is off. These are visible local settings in `%USERPROFILE%\.companion-core-lite\sdk-config.json`.
+The SDK listener stays connected to Discord without starting Codex turns. By default it permits no more than six turns in any rolling hour and 24 in a local calendar day, reserving six daily turns for direct pings. Ordinary traffic has a two-minute cooldown, direct pings have a 30-second cooldown, quiet hours are 1:00–8:00 AM with pings allowed, and hosted web search is off. These are visible local settings in `~/.companion-core-lite/sdk-config.json` (`%USERPROFILE%\.companion-core-lite` on Windows).
 
 ## Work heartbeat choices
 

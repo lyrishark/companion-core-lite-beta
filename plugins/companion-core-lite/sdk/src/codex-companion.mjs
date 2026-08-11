@@ -50,6 +50,8 @@ function filteredCodexEnvironment(codexHome) {
   const allowed = [
     "APPDATA", "COMSPEC", "HOMEDRIVE", "HOMEPATH", "LOCALAPPDATA", "PATH", "PATHEXT",
     "SYSTEMDRIVE", "SYSTEMROOT", "TEMP", "TMP", "USERPROFILE", "WINDIR",
+    "HOME", "LOGNAME", "SHELL", "TMPDIR", "USER", "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME",
+    "LANG", "LC_ALL", "LC_CTYPE", "TERM",
     "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "SSL_CERT_DIR", "SSL_CERT_FILE",
   ];
   return Object.fromEntries([
@@ -72,7 +74,7 @@ async function prepareIsolatedCodexHome(dataDirectory) {
       await link(sourceAuth, targetAuth);
     } catch (linkError) {
       if (linkError?.code === "ENOENT") {
-        throw new Error(`No local Codex login was found at ${sourceAuth}. Run codex login, then restart the SDK runtime.`);
+        throw new Error(`No isolated Codex login was found at ${targetAuth}. Run the Companion Core Lite SDK launcher to complete its one-time browser login.`);
       }
       try {
         await copyFile(sourceAuth, targetAuth);

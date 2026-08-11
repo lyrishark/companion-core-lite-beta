@@ -10,13 +10,17 @@ permissions:
 
 jobs:
   test:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
@@ -31,6 +35,13 @@ jobs:
       - name: Test event-driven SDK runtime
         run: npm test --prefix plugins/companion-core-lite/sdk
 
+      - name: Check macOS launcher and pinned Codex binary
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          bash -n plugins/companion-core-lite/scripts/start-sdk-runtime.sh
+          test -f "plugins/companion-core-lite/sdk/node_modules/@openai/codex-darwin-$(node -p 'process.arch')/package.json"
+
       - name: Test plugin, bridge, and policies
         run: >-
           node --test
@@ -40,11 +51,10 @@ jobs:
           plugins/companion-core-lite/mcp/test/settings.test.mjs
 
       - name: Audit the share tree
-        shell: pwsh
-        run: |
-          & .\scripts\Test-ShareTree.ps1
+        run: node scripts/test-share-tree.mjs
 
       - name: Build public-beta archive
+        if: runner.os == 'Windows'
         shell: pwsh
         run: |
           & .\scripts\package-beta.ps1

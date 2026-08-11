@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node src/runtime.mjs",
-    "test": "node --test test/budget-governor.test.mjs test/codex-companion.test.mjs test/event-batcher.test.mjs test/gateway-client.test.mjs"
+    "test": "node --test test/budget-governor.test.mjs test/codex-companion.test.mjs test/event-batcher.test.mjs test/gateway-client.test.mjs test/launcher.test.mjs"
   },
   "dependencies": {
     "@openai/codex-sdk": "0.147.0",

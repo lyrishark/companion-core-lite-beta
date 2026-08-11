@@ -12,15 +12,16 @@ Companion Core Lite is currently a public beta. Keep changes small, inspectable,
 
 ## Verify a change
 
-From the repository root on Windows:
+From the repository root on Windows or macOS:
 
-```powershell
-npm ci --prefix plugins\companion-core-lite\sdk
-npm test --prefix plugins\companion-core-lite\sdk
-node --test plugins\companion-core-lite\mcp\test\activity-poll.test.mjs plugins\companion-core-lite\mcp\test\discord-bridge.test.mjs plugins\companion-core-lite\mcp\test\server.test.mjs plugins\companion-core-lite\mcp\test\settings.test.mjs
-& .\scripts\Test-ShareTree.ps1
-& .\scripts\package-beta.ps1
+```shell
+npm ci --prefix plugins/companion-core-lite/sdk
+npm test --prefix plugins/companion-core-lite/sdk
+node --test plugins/companion-core-lite/mcp/test/activity-poll.test.mjs plugins/companion-core-lite/mcp/test/discord-bridge.test.mjs plugins/companion-core-lite/mcp/test/server.test.mjs plugins/companion-core-lite/mcp/test/settings.test.mjs
+node scripts/test-share-tree.mjs
 ```
+
+The distribution ZIP is currently built on Windows with `scripts/package-beta.ps1`; runtime and test support are verified on both Windows and macOS.
 
 Plugin manifest or skill changes also need local plugin validation and a cachebuster reinstall before testing in a fresh Codex task.
 

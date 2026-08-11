@@ -54,7 +54,7 @@ Before acting, read the relevant delivered messages and decide whether speaking,
 
 After installing or updating the plugin, start a new task before testing new tools. An already-open task may retain the older skill and MCP tool inventory even when the refreshed server and bridge work correctly when invoked directly.
 
-The responsive SDK requires a local Codex task and a private local terminal. A ChatGPT Work-only chat cannot run it; route Work-only users to `docs/CODEX_WORK_SETUP_HANDOFF.md`. When an install or update occurs, stop configuration in that task and have the human open another fresh local Codex task before continuing.
+The responsive SDK requires a local Codex task and a private local terminal on Windows or macOS. Use the PowerShell launcher on Windows and the shell launcher on macOS. A ChatGPT Work-only chat cannot run it; route Work-only users to `docs/CODEX_WORK_SETUP_HANDOFF.md`. When an install or update occurs, stop configuration in that task and have the human open another fresh local Codex task before continuing.
 
 If returned messages have empty bodies, have the user enable Message Content Intent in the Discord Developer Portal and restart the bridge. The bot also needs View Channel and Read Message History permissions. Up to two bounded Discord-hosted image attachments may be returned as actual image content; attachment/link/embed metadata remains provenance, not proof that an external linked page was opened.
 

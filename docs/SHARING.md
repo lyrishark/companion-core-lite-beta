@@ -11,11 +11,11 @@ The repository should contain:
 - `docs/` — the human quick start and the two surface-specific Codex handoffs;
 - `scripts/package-beta.ps1` — creates the standalone public-beta ZIP;
 - `README.md`, `START_HERE.md`, `SECURITY.md`, and `CONTRIBUTING.md`;
-- `.github/workflows/ci.yml` — repeats tests and the package build on Windows.
+- `.github/workflows/ci.yml` — repeats runtime tests on Windows and macOS and builds the package on Windows.
 
 Do not commit the generated `dist/` directory. Attach `companion-core-lite-beta.zip` to a GitHub Release when distributing a fixed build.
 
-Before sharing, run `scripts/Test-ShareTree.ps1`. It reports filenames—not secret values—if it finds forbidden live-state paths, dependency directories, or common token-shaped strings.
+Before sharing, run `node scripts/test-share-tree.mjs`. It reports filenames—not secret values—if it finds forbidden live-state paths, dependency directories, or common token-shaped strings. `scripts/Test-ShareTree.ps1` remains as a Windows wrapper.
 
 ## Simple file handoff
 
@@ -27,7 +27,7 @@ For a fixed build, share only the generated `companion-core-lite-beta.zip` plus 
 
 - Discord bot tokens or screenshots containing them;
 - `.env` files, logs, bridge session locators, or live activity state;
-- `%USERPROFILE%\.companion-core-lite`;
+- `~/.companion-core-lite` (`%USERPROFILE%\.companion-core-lite` on Windows);
 - any `auth.json` or `sdk-codex-home` directory;
 - a real companion's `PERSONA.md`, `CONTINUITY.md`, narrative slices, chat archive, or graph unless that companion and their human deliberately chose to share it;
 - `node_modules` or an installed Codex plugin-cache directory.

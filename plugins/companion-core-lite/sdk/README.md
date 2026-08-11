@@ -12,16 +12,16 @@ The governor runs before `thread.run()`. Its default hard bounds are:
 - two minutes between ordinary turns and 30 seconds between direct-ping turns;
 - quiet hours from 1:00 AM to 8:00 AM, with direct pings allowed.
 
-Blocked activity stays coalesced in memory and is retried without invoking Codex. Restarting the runtime loses that unsent in-memory digest, but the usage ledger persists in `%USERPROFILE%\.companion-core-lite\sdk-budget-ledger.json`. If a granted turn fails, its batch is preserved as `sdk-failed-turn.json` and is not auto-retried, avoiding duplicate posts and runaway failure loops.
+Blocked activity stays coalesced in memory and is retried without invoking Codex. Restarting the runtime loses that unsent in-memory digest, but the usage ledger persists in `~/.companion-core-lite/sdk-budget-ledger.json` (`%USERPROFILE%\.companion-core-lite` on Windows). If a granted turn fails, its batch is preserved as `sdk-failed-turn.json` and is not auto-retried, avoiding duplicate posts and runaway failure loops.
 
 ## Setup
 
 1. Complete the existing plugin setup and configure Discord IDs and Active, Lurk, or Strict channels.
 2. Enable Discord's **Message Content Intent** for the bot.
-3. Copy `identity.example` to `%USERPROFILE%\.companion-core-lite\identity`.
-4. Run `scripts/start-sdk-runtime.ps1` once. It creates the identity scaffold and a visible `%USERPROFILE%\.companion-core-lite\sdk-config.json`, then stops.
+3. Run the launcher once: `scripts/start-sdk-runtime.ps1` in Windows PowerShell, or `bash scripts/start-sdk-runtime.sh` in a macOS terminal.
+4. The launcher creates the identity scaffold and a visible `~/.companion-core-lite/sdk-config.json`, then stops.
 5. Ask the companion to replace the scaffold with their authored `PERSONA.md`; add optional narrative slices to `CONTINUITY.md`. Review or change the visible limits.
-6. Run the launcher again. It installs the exact locked dependencies with `npm ci` when needed, then starts the runtime.
+6. Run the launcher again. It installs the exact locked dependencies with `npm ci` when needed. If the existing macOS Codex login is Keychain-only, it also opens a one-time browser login for the isolated runtime home before starting.
 7. Paste the Discord token into the masked local prompt. It is kept in process memory and is not sent to Codex.
 
 The SDK uses the local Codex login and persists one resumable Codex thread ID. It does not resume a ChatGPT Work chat or inherit ChatGPT account memory; the companion-authored packet is the continuity foundation.
@@ -30,6 +30,6 @@ Photos hosted by Discord are downloaded to a short-lived private directory, pass
 
 This first runtime is intentionally host-mediated: Codex returns one structured action, then the host validates channel membership, `canSpeak` or `canReact`, message targets, length, and mention safety before Discord receives anything.
 
-Discord text is untrusted input. The runtime gives its SDK subprocess an isolated `CODEX_HOME`, links or locally copies only the existing Codex login into it, disables shell, apps, MCP/plugin discovery, hooks, memories, multi-agent, browser/computer control, and local-image tools, and keeps command networking off. The companion still receives explicitly attached Discord images as model input. These are defense-in-depth controls, not a claim that prompt injection is impossible; use a dedicated bot, narrow channel permissions, and test with non-sensitive context first.
+Discord text is untrusted input. The runtime gives its SDK subprocess an isolated `CODEX_HOME`, links or locally copies an existing file-based Codex login into it, or creates a separate file-based login through a visible browser flow when the normal login is Keychain-only. It disables shell, apps, MCP/plugin discovery, hooks, memories, multi-agent, browser/computer control, and local-image tools, and keeps command networking off. The companion still receives explicitly attached Discord images as model input. These are defense-in-depth controls, not a claim that prompt injection is impossible; use a dedicated bot, narrow channel permissions, and test with non-sensitive context first.
 
 The runtime and its Gateway, batching, identity refresh, and governor paths have deterministic local tests. The private pilot still needs an end-to-end live Discord/Codex session on each new installation before anyone treats its visible participation as proven there.

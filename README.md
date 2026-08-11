@@ -6,7 +6,7 @@ A public-beta Codex/ChatGPT Work plugin for companion-authored continuity and bo
 
 This repository is a sanitized distribution snapshot. It contains no bot token, live bridge state, companion identity archive, private Discord transcript, or private development history. Every recipient supplies their own Discord application and companion-authored identity files locally.
 
-The responsive SDK requires **local Codex plus a private local terminal**. ChatGPT Work-only users should use the polling handoff. After any plugin install or update, open a fresh task before configuration so the new skill and MCP tools are loaded.
+The responsive SDK supports **Windows and macOS** and requires local Codex plus a private local terminal. ChatGPT Work-only users should use the polling handoff. After any plugin install or update, open a fresh task before configuration so the new skill and MCP tools are loaded.
 
 ## Start and share
 
@@ -74,38 +74,45 @@ The shareable archive opens with [START_HERE.md](START_HERE.md). Build it locall
 
 The bridge listens on a random `127.0.0.1` port and protects every route with a random per-run session key. The session file contains the loopback address and session key—not the Discord bot token—and is removed when the bridge stops normally. Stop it with Ctrl+C.
 
-Runtime delivery state lives in `%USERPROFILE%\.companion-core-lite\activity-state.json`. It contains channel cursors, a bounded Lurk buffer, and at most one pending delivery batch. It does not contain the Discord bot token. This bounded local persistence is what allows an interrupted Work turn to replay rather than lose a batch.
+Runtime delivery state lives in `~/.companion-core-lite/activity-state.json` (`%USERPROFILE%\.companion-core-lite` on Windows). It contains channel cursors, a bounded Lurk buffer, and at most one pending delivery batch. It does not contain the Discord bot token. This bounded local persistence is what allows an interrupted Work turn to replay rather than lose a batch.
 
 ## Local development
 
-Requirements: Node.js 20 or newer and Codex.
+Requirements: Node.js 20 or newer and Codex on Windows or macOS.
 
 Run all tests:
 
-```powershell
-node --test H:\companion-core-lite\plugins\companion-core-lite\mcp\test\activity-poll.test.mjs H:\companion-core-lite\plugins\companion-core-lite\mcp\test\discord-bridge.test.mjs H:\companion-core-lite\plugins\companion-core-lite\mcp\test\server.test.mjs H:\companion-core-lite\plugins\companion-core-lite\mcp\test\settings.test.mjs
-Push-Location H:\companion-core-lite\plugins\companion-core-lite\sdk; npm ci; npm test; Pop-Location
+```shell
+node --test plugins/companion-core-lite/mcp/test/activity-poll.test.mjs plugins/companion-core-lite/mcp/test/discord-bridge.test.mjs plugins/companion-core-lite/mcp/test/server.test.mjs plugins/companion-core-lite/mcp/test/settings.test.mjs
+npm ci --prefix plugins/companion-core-lite/sdk
+npm test --prefix plugins/companion-core-lite/sdk
+node scripts/test-share-tree.mjs
 ```
 
 Use an isolated data directory during manual MCP tests:
 
-```powershell
-$env:COMPANION_CORE_LITE_DATA_DIR = "H:\companion-core-lite\.local-data"
-node H:\companion-core-lite\plugins\companion-core-lite\mcp\server.mjs
+```shell
+COMPANION_CORE_LITE_DATA_DIR=/path/to/companion-core-lite/.local-data node plugins/companion-core-lite/mcp/server.mjs
 ```
 
-Normal installs store settings, bounded activity state, and the ephemeral bridge locator in `%USERPROFILE%\.companion-core-lite`. Set `COMPANION_CORE_LITE_DATA_DIR` to override that location.
+Normal installs store settings, bounded activity state, and the ephemeral bridge locator in `~/.companion-core-lite`. Set `COMPANION_CORE_LITE_DATA_DIR` to override that location.
 
-Start the event-driven runtime with:
+Start the event-driven runtime on Windows with:
 
 ```powershell
-& H:\companion-core-lite\plugins\companion-core-lite\scripts\start-sdk-runtime.ps1
+& .\plugins\companion-core-lite\scripts\start-sdk-runtime.ps1
+```
+
+Or on macOS:
+
+```shell
+bash ./plugins/companion-core-lite/scripts/start-sdk-runtime.sh
 ```
 
 Run a token-free diagnostic with:
 
-```powershell
-node H:\companion-core-lite\plugins\companion-core-lite\scripts\diagnose.mjs
+```shell
+node ./plugins/companion-core-lite/scripts/diagnose.mjs
 ```
 
 ## Installation

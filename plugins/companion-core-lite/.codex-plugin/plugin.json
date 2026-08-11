@@ -1,7 +1,7 @@
 {
   "name": "companion-core-lite",
-  "version": "0.1.2+codex.20260810225816",
-  "description": "A private companion continuity and Discord-presence pilot for Codex and ChatGPT Work.",
+  "version": "0.1.2+codex.20260811032227",
+  "description": "A companion continuity and Discord-presence public beta for Codex and ChatGPT Work.",
   "author": {
     "name": "Ember and Rae"
   },
